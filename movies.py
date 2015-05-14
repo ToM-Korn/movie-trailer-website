@@ -47,13 +47,13 @@ def user_com(DB):
 			if movie_selected == "0":
 				pass
 			else:
-				dic_movie = get_movie(result["Search"][int(movie_selected)-1]["imdbID"])
-				# try:
-				# 	get_movie(result["Search"][int(movie_selected)-1]["imdbID"])
-				# except:
-				# 	print 
-				# 	print "IMPORTANT: Please enter only one of the Numbers."
-				DB.new_entry(dic_movie)
+				try:
+					dic_movie = get_movie(result["Search"][int(movie_selected)-1]["imdbID"])
+					DB.new_entry(dic_movie)
+				except:
+					print 
+					print "IMPORTANT: Please enter only one of the Numbers."
+				
 		else:
 			print "Sorry no result. Please try again."
 
