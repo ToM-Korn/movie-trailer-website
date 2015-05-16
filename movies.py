@@ -135,14 +135,6 @@ def get_movie_data(imdbID):
 	result["Trailer"] = yt_id
 	result["imdbURL"] = imdb +'title/'+imdbID
 
-	# print result["Trailer"]
-	# print result["Title"]
-	# print result["Plot"]
-	# print result["Rated"]
-	# print result["Poster"]
-	# print result["tomatoRating"]
-	# print result["imdbRating"]
-	# print
 	return result
 
 
