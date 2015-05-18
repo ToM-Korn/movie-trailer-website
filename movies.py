@@ -1,28 +1,71 @@
-# Command Line Tool for the Udacity Full Stack Web Developer Nano Degree
-# This Requirement of the Project is to be able to understand Classes and Basic Python.
-# I added a sqlite Database plus a CommandLine Tool to generate new Entries.
-# Once entered a movie name the API of OMDBapi.com (open movie database) is called
-# and the relslut is converted from json to a dict and stored in the Database including
-# the first entry of trailor from youtube.
-# 
-# Once you are done collecting you videos you can hit the "s" key (for show) and
-# a stand alone HTML Page will be generated with the content of the DB.
-# Media Resources will be fetched from the web.
+# #Description#
+# Command Line Tool for Movie Project of
+# the Udacity Full Stack Web Developer Nano Degree
 #
+# With this Programm it is possible to search for Movies and add them 
+# to a Favorites Databse. The whole Programm works from your commandline.
+# 
+# Once you are done collecting your videos you can hit the "s" key 
+# (for show) and a stand alone HTML Page will be generated with 
+# the content of the DB. Media Resources will be fetched from the web.
+
+# #License#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Created by ToM Krickl 2015
+# #Author#
+# ToM Krickl
+
+# #Date#
+# Last Update 18 May 2015
+#
+# Please see GitHub changelog
+
+# #Technical#
+# 1. When called from the Commandline the Program is looking for a db in the, 
+# local folder. If it does not exist it creates one and generates the table
+# needed.
+# 2. The Programm goes into the main communication loop, lists the main usage
+# paramenters and waits for a input.
+
+# ### input is a movie name ###
+# 1. with the input a GET request is sent to omdbapi.com and the result is
+# displayed to the user for selection.
+# 2. the id of the selection is used to send another GET request to collect
+# the whole data from omdbapi
+# 3. the movie trailer is collected form youtube by selecting the first 
+# search result with a regex expression. to get the right trailer 
+# "official trailer" is added to the movies title for search
+# 4. the later needed data is stored to the db. 
+
+# ### input is l > LIST ###
+# a list of all entries in the database is printed out to the commandline
+
+# ### input is d > DELETE ###
+# a list of all entries is printed to the commandline. the user can select
+# one of the entries to delete it.
+
+# ### input is q > QUIT ###
+# the program breaks the main communication loop, closes the connection to 
+# the database and ends
+
+# ### input is s > SHOW ###
+# all data is fetched from the db as a list of dicts, converted into a list
+# of movie objects and then sent to the fresh_tomatoes.py (provided by 
+# Udacity) to generate a html page from the content. 
+# this html page is then opend in your web browser
+
+## main program
 
 # Import Modules
 import urllib
@@ -38,39 +81,55 @@ omdb = "http://www.omdbapi.com/"
 youtube = "https://www.youtube.com/"
 imdb = "http://www.imdb.com/"
 
+### serach
+# Send GET request to URL with Parameters in dic_query
+# if response is json you can get a dict from it back by setting 
+# return_dict to True
 def search (url,dic_query,return_dict=False):
 	'''search (url,dic_query[,return_dict=False])
-	url: the url to connect to e.g.: https://www.youtube.com/result
-	dic_query: the GET parameters to be sent e.g.: s = what to search > {"s":"what to search"}
-	return_dict: if the feedback from the website is a json you can get back a dict if you set this to true.
 
-	With the given url and a query as a dict a GET request is sent,
-	the data is fetched.
-	if data is a json, set return_dict to True to receive a dict instead of just text.'''
+	sends a GET request to the url and returns the fetched data.
+	if the response is a json you can set return_dict True to convert
+	the response to a python dictionary
+
+	url: the url to connect to 
+		e.g.: https://www.youtube.com/result
+	dic_query: the GET parameters to be sent e.g.: 
+		s = what to search > {"s":"what to search"}
+	return_dict: if the feedback from the website is a json
+		you can get back a dict if you set this to true.
+	'''
 	search = urllib.urlopen(url+"?"+urllib.urlencode(dic_query))
 	result = search.read()
 	search.close()
 	if return_dict:
-		return dictify(result)
+		# generate dict from json result and return it
+		return json.loads(result)
 	else:
 		return result
 
-def dictify(jsonstr):
-	'''jsonstr: input a json str and get back a dict'''
-	return json.loads(jsonstr)
 
+### main communication loop
 def user_com(DB):
-	'''main command line user communication. this schould be startet after the db is inizialised.
+	'''main command line user communication. 
+	this schould be startet after the db is inizialised.
 
 	the database must be given as object
 	'''
+	# main communication look, is left if user input is q
 	while 1:
-		print ("\nUSAGE: \nq to quit, \ns for show website, \nl for list entries, \nd for deleting items \nin seach result 0 for new search\n")
+		print '\nUSAGE: \nq to quit, \ns for show website,\n',\
+				'l for list entries, \nd for deleting items,\n',\
+				'in seach result 0 for new search\n'
 
 		search_input = raw_input("What movie do you like best? \n")
+
+		# end the programm
 		if search_input == "q":
 			break
 
+		# create a list of movie objects then generate the stand alone
+		# website with the fresh_tomatoes module
 		elif search_input == "s":
 			lst_movies = DB.get_list()
 			movies = []
@@ -78,20 +137,26 @@ def user_com(DB):
 				movies.append(movie(elem))
 			fresh_tomatoes.open_movies_page(movies)
 
+		# print a list of all entries in the database
 		elif search_input == "l":
 			print "Movies currently in DB"
 			DB.print_list()
-			
+		
+		# delete one of the entries in the database
 		elif search_input == "d":
 			print "Movies currently in DB"
 			DB.print_list()
-			del_input = raw_input("Which one would you like to delete? 0 for none \n")
+			del_input = raw_input(
+						"Which one would you like to delete? 0 for none \n")
 			if del_input != "0":
+				# catch of false user input
 				try: 
+					#if user input is a valid number delete the movie from db
 					DB.delete_entry(int(del_input))
 				except:
 					print "\nIMPORTANT: Please enter only one of the ID's.\n"
 		else:
+			# get the search result from omdb
 			search_dict = {"s":search_input}
 			result = search(omdb,search_dict,True)
 
@@ -101,31 +166,42 @@ def user_com(DB):
 					print count, elem["Title"], elem["Year"], elem["Type"]
 					count += 1
 
-				movie_selected = raw_input("Which movie did you mean? Please enter the Index Number: ")
+				question = "Which movie did you mean? "+\
+							"Please enter the Index Number: "
+				movie_selected = raw_input(question)
 				if movie_selected == "0":
 					pass
 				else:
+					# catch for false user input
 					try:
-						dic_movie = get_movie_data(result["Search"][int(movie_selected)-1]["imdbID"])
+						# if user input is a valid number get the movie data
+						dic_movie = get_movie_data(result["Search"]\
+							[int(movie_selected)-1]["imdbID"])
+						# then write the data to db
 						DB.new_entry(dic_movie)
 					except:
-						print "\nIMPORTANT: Please enter only one of the Numbers.\n"
+						print "\nIMPORTANT: Please enter only one of",\
+								"the Numbers.\n"
 					
 			else:
 				print "Sorry no result. Please try again."
 	return
 
+### get movie data from ombd with the given imdbID
 def get_movie_data(imdbID):
-	'''function to get data from the open movie database based on a given imdb id.
+	'''function to get movie data from the open movie database based
+	on a given imdb id.
 
-	returns a dict with a data to the movie including the youtube trailor and the imdb link.
+	returns a dict with a data to the movie including the youtube trailor
+	and the imdb link.
+	
 	fields included are:
-	Plot, Rated, tomatoImage, Title, DVD, tomatoMeter, Writer, tomatoUserRating, 
-	Production, Actors, tomatoFresh, Type, imdbVotes, Website, tomatoConsensus, 
-	Poster, tomatoRotten, Director, Released, tomatoUserReviews, Awards, Genre, 
-	tomatoUserMeter, imdbRating, Language, Country, BoxOffice, Runtime, 
-	tomatoReviews, imdbID, Metascore, Response, tomatoRating, Year,
-	Trailer, imdbURL
+	Plot, Rated, tomatoImage, Title, DVD, tomatoMeter, Writer,
+	tomatoUserRating, Production, Actors, tomatoFresh, Type, imdbVotes, 
+	Website, tomatoConsensus, Poster, tomatoRotten, Director, Released, 
+	tomatoUserReviews, Awards, Genre, tomatoUserMeter, imdbRating, 
+	Language, Country, BoxOffice, Runtime, tomatoReviews, imdbID, Metascore,
+	Response, tomatoRating, Year, Trailer, imdbURL
 	'''
 	search_string = {"i":imdbID,"plot":"short","tomatoes":"true"}
 	result = search(omdb,search_string,True)
@@ -137,17 +213,19 @@ def get_movie_data(imdbID):
 
 	return result
 
-
+### get trailer from youtube serarch result
 def get_trailer(movie):
 	'''searches youtube for movie name plus "trailer official" and 
-	returns the id of the first search result '''
+	returns the id of the first search result
+	'''
 	search_text = movie+" trailer official"
 	search_string = {"search_query":search_text}
 	result = search(youtube+'results',search_string)
 
-	### part of youtube website we want to search for ###
-	# regex search : <div class="yt-lockup-content"><h3 class="yt-lockup-title"><a href="/watch?v=GWU-xLViib0" class="yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link " data-sessionlink="itct=CBoQ3DAYACITCLnY0v36v8UCFdCpHAodrjYA_ij0JFIsdGhlIGh1bmdlciBnYW1lcyAyMDEyIG1vdmllIHRyYWlsZXIgb2ZmaWNpYWw" title="The Hunger Games - Official Trailer (2012) HD Movie" aria-describedby="description-id-822575" rel="spf-prefetch" dir="ltr">The Hunger Games - Official Trailer (2012) HD Movie</a><span class="accessible-description" id="description-id-822575"> - Dauer: 2:55</span></h3><div class="yt-lockup-byline">von <a href="/user/THGfansite" class=" yt-uix-sessionlink     spf-link  g-hovercard" data-name="" data-sessionlink="itct=CBoQ3DAYACITCLnY0v36v8UCFdCpHAodrjYA_ij0JA" data-ytid="UC5kbrYM6LZHkcXm5jaRNgnA">THG Fansite</a></div><div class="yt-lockup-meta"><ul class="yt-lockup-meta-info"><li>vor 3 Jahren</li><li>444.396 Aufrufe</li></ul></div><div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr"><b>The Hunger Games</b> - <b>Official Trailer</b> (<b>2012</b>) HD <b>Movie</b> Subscribe to <b>TRAILERS</b>: <a href="http://bit.ly/sxaw6h" target="_blank" title="http://bit.ly/sxaw6h" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/sxaw6h</a> Subscribe to COMING SOON:&nbsp;...</div><div class="yt-lockup-badges"><ul class="yt-badge-list "><li class="yt-badge-item"><span class="yt-badge ">HD</span></li></ul> </div><div class="yt-lockup-action-menu yt-uix-menu-container"><div class="yt-uix-menu yt-uix-videoactionmenu hide-until-delayloaded" data-menu-content-id="yt-uix-videoactionmenu-menu" data-video-id="GWU-xLViib0">  <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-action-menu yt-uix-button-empty yt-uix-button-has-icon no-icon-markup yt-uix-videoactionmenu-button yt-uix-menu-trigger yt-uix-tooltip" type="button" onclick=";return false;" aria-haspopup="true" aria-pressed="false" title="Mehr anzeigen" role="button" data-button-toggle="true"></button>
-	# 	</div></div></div>
+	# part of youtube website we want to search for
+	# regex search for: 
+	# "yt-lockup-title"><a href="/watch?v=GWU-xLViib0"
+	# we want to extract the id after /watch?v=
 
 	match = re.search('\"yt-lockup-title\"\>\<a href=\"\/watch\?v\=([\w|\d|-|_]+)\"\s',result)
 	if match:
@@ -155,29 +233,30 @@ def get_trailer(movie):
 	else:
 		return None
 
+### Database Class
 class db():
 	'''class for the database methods.
 	on init a database file and table will be generated if it doesn't exist. 
 
 	main methods are:
-	new_entry(dic_movie) dic_movie should be generated from get_movie_data and 
-		must include: Title, Plot, Rated, Poster, Trailer, tomatoRating, imdbRating, imdbURL
-	get_list() returns a list of movie objects
-	delete_entry() 
+	new_entry(dic_movie) dic_movie should be generated from get_movie_data
+		and must include: Title, Plot, Rated, Poster, Trailer, tomatoRating,
+		imdbRating, imdbURL
+	get_list() returns a list of movies as dictionary
+	delete_entry(id) deletes the movie with the given id from db 
 	close() closes the connection to the database
-
 	'''
+	# ###db init###
 	def	__init__(self):
+		# search current folder and if db does not exist allready, create one
 		create_db = True
 		for l_file in os.listdir("./"):
-			# print l_file
 			if l_file == "movies.db":
 				create_db = False
 
 		self.con = sqlite3.connect("movies.db")
 		self.c = self.con.cursor()
 		self.nextid = 1
-		# print create_db
 		if create_db:
 			self.c.execute('''CREATE TABLE movies
 	         	(id INTEGER,
@@ -194,28 +273,34 @@ class db():
 			count = self.c.execute('SELECT * FROM movies').fetchall()
 			self.nextid = count[-1][0]+1
 
+	# close the connection to the db object
 	def close(self):
 		self.con.close()
 
-	def new_entry(self,dic_movie):
+	# create now db entry with the given dict 
+	# in the dict there can be much more but we just take the elements
+	# that we want to store for later usage
+	def new_entry(self,dict_movie):
 		insert = (self.nextid,
-			dic_movie["Title"],
-			dic_movie["Plot"],
-			dic_movie["Rated"],
-			dic_movie["Poster"],
-			dic_movie["Trailer"],
-			dic_movie["tomatoRating"],
-			dic_movie["imdbRating"],
-			dic_movie["imdbURL"])
+			dict_movie["Title"],
+			dict_movie["Plot"],
+			dict_movie["Rated"],
+			dict_movie["Poster"],
+			dict_movie["Trailer"],
+			dict_movie["tomatoRating"],
+			dict_movie["imdbRating"],
+			dict_movie["imdbURL"])
 		self.c.execute('INSERT INTO movies VALUES (?,?,?,?,?,?,?,?,?)',insert)
 		self.con.commit()
 		self.nextid += 1
 
+	# print a list of elements in the db
 	def print_list(self):
 		list_entries = self.get_list()
 		for elem in list_entries:
 			print '#'+str(elem["id"])+" "+elem["Title"]
 
+	# return a list of dicts of all elements in db
 	def get_list(self):
 		db_entries = self.get_entries()
 		list_entries = []
@@ -233,17 +318,18 @@ class db():
 			list_entries.append(dic_elem)
 		return list_entries
 
-
+	# return a list of tuples of all elements in the db
 	def get_entries(self):
 		result = self.c.execute('SELECT * FROM movies').fetchall()
-		# print result
 		return result
 
-	def delete_entry(self,movie_id):
-		result = self.c.execute('DELETE FROM movies WHERE "id" = ?',str(movie_id))
-		# print result
+	# delete the element with the given id
+	def delete_entry(self,elem_id):
+		result = self.c.execute('DELETE FROM movies WHERE "id" = ?',str(elem_id))
 		return result
 
+### Movie Class
+# creates a movie object with the given dict
 class movie():
 	''' just creates an object of a movie '''
 	def __init__(self,dict_movie):
@@ -257,56 +343,17 @@ class movie():
 		self.imdbRating = dict_movie["imdbRating"]
 		self.imdbURL = dict_movie["imdbURL"]
 
+	# the representation of one movie object is it's id and the title 
 	def __repr__(self):
 		repr = "#"+str(self.id)+" "+self.Title
 		return repr
 
 if __name__ == "__main__":
+	# if startet form command line
+	#
+	# 1. setup database and set Index
+	# 2. start user communication
+	# 3. if finished close connection and end programm
 	DB = db()
 	user_com(DB)
 	DB.close()
-
-### Return example form the open movie database api ###
-
-# Plot In a dystopian future, the totalitarian nation of Panem is divided into 12 districts and the Capitol. Each year two young representatives from each district are selected by lot
-# tery to participate in The Hunger Games. Part entertainment, part brutal retribution for a past rebellion, the televised games are broadcast throughout Panem. The 24 participants ar
-# e forced to eliminate their competitors while the citizens of Panem are required to watch. When 16-year-old Katniss' young sister, Prim, is selected as District 12's female represen
-# tative, Katniss volunteers to take her place. She and her male counterpart, Peeta, are pitted against bigger, stronger representatives, some of whom have trained for this their whol
-# e lives.
-# Rated PG-13
-# tomatoImage certified
-# Title The Hunger Games
-# DVD 18 Aug 2012
-# tomatoMeter 84
-# Writer Gary Ross (screenplay), Suzanne Collins (screenplay), Billy Ray (screenplay), Suzanne Collins (novel)
-# tomatoUserRating 4.1
-# Production Lionsgate
-# Actors Stanley Tucci, Wes Bentley, Jennifer Lawrence, Willow Shields
-# tomatoFresh 232
-# Type movie
-# imdbVotes 609,997
-# Website http://thehungergamesmovie.com
-# tomatoConsensus Thrilling and superbly acted, The Hunger Games captures the dramatic violence, raw emotion, and ambitious scope of its source novel.
-# Poster http://ia.media-imdb.com/images/M/MV5BMjA4NDg3NzYxMF5BMl5BanBnXkFtZTcwNTgyNzkyNw@@._V1_SX300.jpg
-# tomatoRotten 44
-# Director Gary Ross
-# Released 23 Mar 2012
-# tomatoUserReviews 896744
-# Awards Nominated for 1 Golden Globe. Another 32 wins & 40 nominations.
-# Genre Adventure, Sci-Fi
-# tomatoUserMeter 81
-# imdbRating 7.3
-# Language English
-# Country USA
-# BoxOffice $408.0M
-# Runtime 142 min
-# tomatoReviews 276
-# imdbID tt1392170
-# Metascore 67
-# Response True
-# tomatoRating 7.2
-# Year 2012
-
-
-
-
