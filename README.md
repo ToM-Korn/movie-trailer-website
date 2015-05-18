@@ -16,29 +16,30 @@ at the command promt you have several options
 - input l for LIST all movies in db
 - input d for DELETE one movie from db
 - input q for QUIT and exit the programm
-- input s for SHOW result - this generates a html stand alone website
+- input s for SHOW result
+	+ this generates a html stand alone website
 	and displayes it to you in your webbrowser
 	+ if you are not happy with the search result type 0 (zero) 
 		to start a new search
 
 ## Files ##
 - movies.py is the main file 
-	it handles:
+	+ it handles:
 	+ user communication
 	+ database administration
 	+ search and data manipulation
 - fresh_tomatoes.py (provided by Udacity)
-	handles the generation of a stand alone website from
+	+ handles the generation of a stand alone website from
 	a list of movie objects
-	it is bootstrapped and therefore easy to change in apperance
+	+ it is bootstrapped and therefore easy to change in apperance
 - /docs/movies.html
-	technical documentation
+	+ technical documentation
 
 ## copyright and licensing information ##
-### Author of movies.py ###
+#### Author of movies.py ####
 ToM Krickl
 
-### License ###
+#### License ####
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -54,11 +55,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## contact information for the distributor or programmer ##
 - email: git@krickl.eu
-- phone: please ask me in mail 
+- phone: please ask me in email 
 - web: www.krickl.eu
 
 ## known bugs ##
-currently non, please feel free to write me if you found one :) 
+currently none, please feel free to write me if you found one :) 
 
 ## troubleshooting ##
 don't panic... write me a mail or solve the problem and commit it :)
