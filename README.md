@@ -1,16 +1,16 @@
-= Favorite Movie Trailer Website =
+# Favorite Movie Trailer Website #
 
-== installation instructions ==
+## installation instructions ##
 1) clone or copy this repository to your computer
 2) go to the folder where you copied it
 3) start it from command line with: python movies.py
 4) follow the command promt
 
-== Configuration instructions ==
+## Configuration instructions ##
 if you'd like to have a new database you can delete the movies.db 
 from the folder of installation
 
-== Operating instructions ==
+## Operating instructions ##
 at the command promt you have several options
 
 - input l for LIST all movies in db
@@ -21,7 +21,7 @@ at the command promt you have several options
 	-- if you are not happy with the search result type 0 (zero) 
 		to start a new search
 
-== Files ==
+## Files ##
 - movies.py is the main file 
 	it handles:
 	-- user communication
@@ -34,11 +34,11 @@ at the command promt you have several options
 - /docs/movies.html
 	technical documentation
 
-== copyright and licensing information ==
-=== Author of movies.py ===
+## copyright and licensing information ##
+### Author of movies.py ###
 ToM Krickl
 
-=== License ===
+### License ###
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -52,21 +52,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-== contact information for the distributor or programmer ==
+## contact information for the distributor or programmer ##
 email: git@krickl.eu
 phone: please ask me in mail 
 web: www.krickl.eu
 
-== known bugs ==
+## known bugs ##
 currently non, please feel free to write me if you found one :) 
 
-== troubleshooting ==
+## troubleshooting ##
 don't panic... write me a mail or solve the problem and commit it :)
 
-== credits and acknowledgements ==
+## credits and acknowledgements ##
 Thanks to Udacity for the fresh_tomatoes.py that generates the website.
 
 Thanks to all python coders who generate and maintain those great libraries.
 
-== changelog ==
+## changelog ##
 please see the github repository commits
